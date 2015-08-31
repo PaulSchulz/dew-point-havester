@@ -20,8 +20,8 @@ const int outCoolerFanPin     = 8;
 const int outCoolerPumpPin    = 9;  // PWM 
 const int outCondenserFanPin  = 10; // PWM
 const int outCondenserPumpPin = 11; // PWM   
-const int outStatus1          = 12;
-const int outStatus2          = 13;
+const int outStatus1Pin       = 12;
+const int outStatus2Pin       = 13;
 
 // Analog in
 
@@ -40,7 +40,7 @@ void setup() {
   pinMode(ctlCoolerFanPin,     INPUT);     
   pinMode(ctlCoolerPumpPin,    INPUT);     
   pinMode(ctlCondenserFanPin,  INPUT);     
-  pinMode(ctlContenserPumpPin, INPUT);     
+  pinMode(ctlCondenserPumpPin, INPUT);     
 
   // initialize the output pins:
   pinMode(outCoolerPin,        OUTPUT);
@@ -54,35 +54,35 @@ void setup() {
 
 void loop(){
   // read the state of the controls:
-  coolerState        = digitalRead(CtlCoolerPin);
-  coolerFanState     = digitalRead(CtlCoolerFanPin);
-  coolerPumpState    = digitalRead(CtlCoolerPumpPin);
-  condenserFanState  = digitalRead(CtlCondenserCoolerPin);
-  condenserPumpState = digitalRead(CtlCoolerPin);
+  coolerState        = digitalRead(ctlCoolerPin);
+  coolerFanState     = digitalRead(ctlCoolerFanPin);
+  coolerPumpState    = digitalRead(ctlCoolerPumpPin);
+  condenserFanState  = digitalRead(ctlCondenserFanPin);
+  condenserPumpState = digitalRead(ctlCoolerPin);
 
   // Status
-  if (ctlCoolerPin == HIGH)        { coolerState = HIGH };    
-  if (ctlCoolerPin == LOW)         { coolerState = LOW };    
+  if (ctlCoolerPin == HIGH)        { coolerState = HIGH; };    
+  if (ctlCoolerPin == LOW)         { coolerState = LOW; };    
 
-  if (ctlCoolerFanPin == HIGH)     { coolerFanState = HIGH };    
-  if (ctlCoolerFanPin == LOW)      { coolerFanState = LOW };    
+  if (ctlCoolerFanPin == HIGH)     { coolerFanState = HIGH; };    
+  if (ctlCoolerFanPin == LOW)      { coolerFanState = LOW; };    
 
-  if (ctlCoolerPumpPin == HIGH)    { coolerPumpState = HIGH };    
-  if (ctlCoolerPumpPin == LOW)     { coolerPumpState = LOW };    
+  if (ctlCoolerPumpPin == HIGH)    { coolerPumpState = HIGH; };    
+  if (ctlCoolerPumpPin == LOW)     { coolerPumpState = LOW; };    
 
-  if (ctlCondenserFanPin == HIGH)  { condenserFanState = HIGH };    
-  if (ctlCondenserFanPin == LOW)   { condenserFanState = LOW };    
+  if (ctlCondenserFanPin == HIGH)  { condenserFanState = HIGH; };    
+  if (ctlCondenserFanPin == LOW)   { condenserFanState = LOW; };    
 
-  if (ctlCondenserPumpPin == HIGH) { condenserPumpState = HIGH };    
-  if (ctlCondenserPumpPin == LOW)  { condenserPumpState = LOW };    
+  if (ctlCondenserPumpPin == HIGH) { condenserPumpState = HIGH; };    
+  if (ctlCondenserPumpPin == LOW)  { condenserPumpState = LOW; };    
 
   // control
   if (ctlCoolerPin == HIGH ||
       ctlCoolerFanPin == HIGH ||
-      ctlCoolerPumpPin == HIGH )    { status1State == HIGH };
+      ctlCoolerPumpPin == HIGH )    { status1State = HIGH; };
       
   if (ctlCondenserFanPin == HIGH ||
-      ctlCondenserPumpPin == HIGH ) { status2State == HIGH };
+      ctlCondenserPumpPin == HIGH ) { status2State = HIGH; };
 
   // output
   digitalWrite(outCoolerPin,        coolerState);  
