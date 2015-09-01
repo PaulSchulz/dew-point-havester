@@ -7,25 +7,33 @@
  --- Put Copywrite Notice Here ---
 */
 
+#include <math.h>
+
 // Constants won't change.
 // Digital Inputs
-const int ctlCoolerPin        = 2;
-const int ctlCoolerFanPin     = 3;
-const int ctlCoolerPumpPin    = 4;
-const int ctlCondenserFanPin  = 5;
-const int ctlCondenserPumpPin = 6;
+const int ctlCoolerPin        =  2;
+const int ctlCoolerFanPin     =  3;
+const int ctlCoolerPumpPin    =  4;
+const int ctlCondenserFanPin  =  5;
+const int ctlCondenserPumpPin =  6;
 // Outputs
-const int outCoolerPin        = 7; 
-const int outCoolerFanPin     = 8;
-const int outCoolerPumpPin    = 9;  // PWM 
+const int outCoolerPin        =  7; 
+const int outCoolerFanPin     =  8;
+const int outCoolerPumpPin    =  9; // PWM 
 const int outCondenserFanPin  = 10; // PWM
 const int outCondenserPumpPin = 11; // PWM   
 const int outStatus1Pin       = 12;
 const int outStatus2Pin       = 13;
 
 // Analog in
+const int analog1Pin = 0;
+const int analog2Pin = 1;
+const int analog3Pin = 2;
+const int analog4Pin = 3;
 
 // State variables:
+int serialNumber       = 0;
+
 int coolerState        = LOW;
 int coolerFanState     = LOW;
 int coolerPumpState    = LOW;
@@ -34,7 +42,17 @@ int condenserPumpState = LOW;
 int status1State       = LOW;
 int status2State       = LOW;
 
+int   analogResistor1State =    0;
+float resister1Value       =    0;
+float temperature1Value    =  999.9;
+const int tempCoef         = 3975;
+
+const int loopDelay = 1000;
+
 void setup() {
+  // system initialisation
+  Serial.begin(9600);
+
   // initialize the input pins:
   pinMode(ctlCoolerPin,        INPUT);     
   pinMode(ctlCoolerFanPin,     INPUT);     
@@ -50,33 +68,30 @@ void setup() {
   pinMode(outCondenserPumpPin, OUTPUT);  
   pinMode(outStatus1Pin,       OUTPUT);  
   pinMode(outStatus2Pin,       OUTPUT);  
+ 
 }
 
 void loop(){
-  // read the state of the controls:
-  coolerState        = digitalRead(ctlCoolerPin);
-  coolerFanState     = digitalRead(ctlCoolerFanPin);
-  coolerPumpState    = digitalRead(ctlCoolerPumpPin);
-  condenserFanState  = digitalRead(ctlCondenserFanPin);
-  condenserPumpState = digitalRead(ctlCoolerPin);
+  serialNumber = serialNumber+1;
+  
+  // read the external state
+  coolerState          = digitalRead(ctlCoolerPin);
+  coolerFanState       = digitalRead(ctlCoolerFanPin);
+  coolerPumpState      = digitalRead(ctlCoolerPumpPin);
+  condenserFanState    = digitalRead(ctlCondenserFanPin);
+  condenserPumpState   = digitalRead(ctlCoolerPin);
 
-  // Status
-  if (ctlCoolerPin == HIGH)        { coolerState = HIGH; };    
-  if (ctlCoolerPin == LOW)         { coolerState = LOW; };    
+  analogResistor1State = analogRead(analog1Pin);
 
-  if (ctlCoolerFanPin == HIGH)     { coolerFanState = HIGH; };    
-  if (ctlCoolerFanPin == LOW)      { coolerFanState = LOW; };    
+  // temperature
+  // Get the resistance of the sensor;  
+  resistor1Value
+        = (float)(1023-analogResistor1State)*10000/analogResistor1State;
+  // Convert to temperature via datasheet;
+  temperature1Value
+        = 1/(log(resistor1Value/10000)/tempCoef+1/298.15)-273.15;
 
-  if (ctlCoolerPumpPin == HIGH)    { coolerPumpState = HIGH; };    
-  if (ctlCoolerPumpPin == LOW)     { coolerPumpState = LOW; };    
-
-  if (ctlCondenserFanPin == HIGH)  { condenserFanState = HIGH; };    
-  if (ctlCondenserFanPin == LOW)   { condenserFanState = LOW; };    
-
-  if (ctlCondenserPumpPin == HIGH) { condenserPumpState = HIGH; };    
-  if (ctlCondenserPumpPin == LOW)  { condenserPumpState = LOW; };    
-
-  // control
+  // status
   if (ctlCoolerPin == HIGH ||
       ctlCoolerFanPin == HIGH ||
       ctlCoolerPumpPin == HIGH )    { status1State = HIGH; };
@@ -93,5 +108,14 @@ void loop(){
 
   digitalWrite(outStatus1Pin,       status1State);  
   digitalWrite(outStatus2Pin,       status2State);  
+
+  //logging
+  Serial.print(serialNumber);
+  Serial.print("|");
+  Serial.print(temperature1Value);
+  Serial.print("|");
+  Serial.println("");
+
+  delay(loopDelay);
 
 }
