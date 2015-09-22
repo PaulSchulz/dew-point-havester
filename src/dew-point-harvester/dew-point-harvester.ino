@@ -1,4 +1,4 @@
-/*
+/* -*- c -*-
  Dew Point Controller
 
  Turns on and off a Dew Point components
@@ -70,9 +70,44 @@ int   analogResistor5State =    0;
 float resistor5Value       =    0;
 float temperature5Value    =  999.9;
 
-const int tempCoef         = 3975;
-
 const int loopDelay = 1000;
+
+float calculateTemperature(int analogResistorState) {
+  float resistorValue;
+  float temperatureValue;
+  const int tempCoef         = 3975;
+
+  resistorValue
+        = (float)(1023-analogResistorState)*10000/analogResistorState;
+  temperature1Value
+        = 1/(log(resistorValue/10000)/tempCoef+1/298.15)-273.15;
+
+  return temperatureValue;
+}
+
+// Calculation of Dew Point tempurature
+// from https://en.wikipedia.org/wiki/Dew_point
+// Constants: -45degC <= T <= +60degC, +/- 0.35degC)
+const float a =   6.112; // millibar
+const float b =  17.62;
+const float c = 243.12; // deg C
+
+float gammaFunction (float temperature, float relativeHumidity) {
+  float gamma;
+
+  gamma = log(relativeHumidity/100.0) + (b*temperature)/(c+temperature);
+  return gamma;
+}
+
+float dewPointTemperature (float temperature, float relativeHumidity) {
+  float dewPointTemperature;
+  float gamma;
+
+  gamma = gammaFunction(temperature,relativeHumidity);
+  dewPointTemperature = (c*gamma)/(b-gamma);
+
+  return dewPointTemperature;
+}
 
 void setup() {
   // system initialisation
@@ -97,6 +132,8 @@ void setup() {
 }
 
 void loop(){
+  const int tempCoef         = 3975;
+
   serialNumber = serialNumber+1;
   
   // read the external state
